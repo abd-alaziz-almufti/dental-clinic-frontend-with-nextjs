@@ -79,6 +79,24 @@ export function AuthProvider({ children }) {
     [user]
   );
 
+  const hasRole = useCallback(
+    (role) => {
+      if (!user || !user.roles) return false;
+      if (user.roles.includes("super-admin")) return true;
+      return user.roles.includes(role);
+    },
+    [user]
+  );
+
+  const hasAnyRole = useCallback(
+    (roles) => {
+      if (!user || !user.roles) return false;
+      if (user.roles.includes("super-admin")) return true;
+      return roles.some((role) => user.roles.includes(role));
+    },
+    [user]
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -86,9 +104,12 @@ export function AuthProvider({ children }) {
         token,
         isAuthenticated: !!token && !!user,
         isLoading,
+        loading: isLoading,
         login,
         logout,
         can,
+        hasRole,
+        hasAnyRole,
       }}
     >
       {children}

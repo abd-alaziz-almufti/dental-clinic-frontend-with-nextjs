@@ -84,7 +84,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 2 — Dashboard
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/002-dashboard/`  
 **Goal**: Role-appropriate dashboard for admin/super-admin (KPI overview) and doctor (schedule-focused).
 
