@@ -106,7 +106,7 @@ export function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar container */}
       <aside
-        className={`fixed top-0 bottom-0 start-0 z-50 w-64 bg-white border-e border-slate-200 shadow-sm flex flex-col transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 start-0 z-50 w-64 bg-white border-e border-slate-200 shadow-sm flex flex-col transition-transform duration-300 lg:translate-x-0 lg:rtl:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
         }`}
       >
