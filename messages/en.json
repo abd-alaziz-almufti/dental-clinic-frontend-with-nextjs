@@ -1,0 +1,71 @@
+{
+  "common": {
+    "appName": "Lumina Dental",
+    "subtitle": "Dental Management System",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search...",
+    "filter": "Filter",
+    "actions": "Actions",
+    "status": "Status",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "appointments": "Appointments",
+    "visits": "Visits",
+    "doctors": "Doctors",
+    "services": "Services",
+    "billing": "Billing",
+    "reports": "Reports",
+    "inventory": "Inventory",
+    "users": "Users & Permissions",
+    "settings": "Settings",
+    "bookAppointment": "+ Book Appointment"
+  },
+  "roles": {
+    "superAdmin": "Super Admin",
+    "admin": "Branch Admin",
+    "doctor": "Doctor",
+    "receptionist": "Receptionist",
+    "accountant": "Accountant",
+    "inventoryManager": "Inventory Manager"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Sign in to Lumina Dental Management",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "name@clinic.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "rememberMe": "Remember me",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "logoutSuccess": "Logged out successfully",
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "invalidCredentials": "Invalid email or password."
+  },
+  "errors": {
+    "unauthenticated": "Your session has expired. Please log in again.",
+    "forbidden": "You don't have permission to perform this action.",
+    "not_found": "The requested record was not found.",
+    "validation": "Please fix the highlighted errors.",
+    "appointment_conflict": "This time slot is already booked for that doctor.",
+    "invalid_appointment_status": "This appointment cannot be modified in its current status.",
+    "visit_not_editable": "This visit can no longer be modified.",
+    "visit_already_invoiced": "An invoice already exists for this visit.",
+    "invalid_invoice_status": "This invoice cannot be modified in its current status.",
+    "payment_exceeds_balance": "The payment amount exceeds the remaining balance.",
+    "too_many_requests": "Too many attempts. Please wait before trying again.",
+    "server_error": "An unexpected error occurred. Please try again."
+  }
+}

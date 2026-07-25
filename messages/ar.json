@@ -1,0 +1,71 @@
+{
+  "common": {
+    "appName": "لومينا ديناال",
+    "subtitle": "نظام إدارة عيادة الأسنان",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث...",
+    "filter": "تصفية",
+    "actions": "الإجراءات",
+    "status": "الحالة",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "patients": "المرضى",
+    "appointments": "المواعيد",
+    "visits": "الزيارات",
+    "doctors": "الأطباء",
+    "services": "الخدمات",
+    "billing": "الفواتير والمالية",
+    "reports": "التقارير",
+    "inventory": "المخزون",
+    "users": "المستخدمين والصلاحيات",
+    "settings": "الإعدادات",
+    "bookAppointment": "+ حجز موعد"
+  },
+  "roles": {
+    "superAdmin": "مدير النظام العام",
+    "admin": "مدير الفرع",
+    "doctor": "طبيب",
+    "receptionist": "موظف استقبال",
+    "accountant": "محاسب",
+    "inventoryManager": "مسؤول المخزون"
+  },
+  "auth": {
+    "loginTitle": "مرحباً بعودتك",
+    "loginSubtitle": "تسجيل الدخول إلى نظام لومينا ديانتال",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "name@clinic.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "••••••••",
+    "rememberMe": "تذكرني",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول...",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح",
+    "sessionExpired": "انتهت جلسة العمل. يرجى إعادة تسجيل الدخول.",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+  },
+  "errors": {
+    "unauthenticated": "انتهت جلسة العمل. يرجى إعادة تسجيل الدخول.",
+    "forbidden": "ليس لديك الصلاحية للقيام بهذا الإجراء.",
+    "not_found": "السجل المطلوب غير موجود.",
+    "validation": "يرجى تصحيح الأخطاء المحددة.",
+    "appointment_conflict": "هذا الموعد محجوز بالفعل للطبيب المحدد.",
+    "invalid_appointment_status": "لا يمكن تعديل هذا الموعد في حالته الحالية.",
+    "visit_not_editable": "لا يمكن تعديل هذه الزيارة بعد إغلاقها.",
+    "visit_already_invoiced": "تم إصدار فاتورة لهذه الزيارة بالفعل.",
+    "invalid_invoice_status": "لا يمكن تعديل هذه الفاتورة في حالتها الحالية.",
+    "payment_exceeds_balance": "المبلغ المدفوع يتجاوز المبلغ المتبقي.",
+    "too_many_requests": "محاولات كثيرة جداً. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.",
+    "server_error": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى."
+  }
+}
