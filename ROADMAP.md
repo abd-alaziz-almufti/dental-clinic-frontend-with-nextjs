@@ -145,7 +145,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 4 — Appointments
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/004-appointments/`  
 **Goal**: Calendar view, create appointment modal, cancel, and check-in flow.
 
