@@ -177,7 +177,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 5 — Visit / Clinical Documentation
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/005-clinical-visit/`  
 **Goal**: Visit detail page with diagnosis notes, odontogram grid, and treatment plan.
 
