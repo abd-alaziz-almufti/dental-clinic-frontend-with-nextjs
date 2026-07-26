@@ -114,7 +114,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 3 — Patient Registry
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/003-patient-registry/`  
 **Goal**: Patient list, search/filter, add patient modal, and patient profile page.
 
