@@ -73,9 +73,11 @@
     "cancelAppointment": "Cancel Appointment",
     "confirmCancel": "Are you sure you want to cancel this appointment?",
     "scheduled": "Scheduled",
+    "pending": "Pending",
     "confirmed": "Confirmed",
     "completed": "Completed",
     "cancelled": "Cancelled",
+    "doctor": "Doctor",
     "noAppointments": "No appointments found for this period."
   },
   "patients": {

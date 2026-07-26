@@ -73,9 +73,11 @@
     "cancelAppointment": "إلغاء الموعد",
     "confirmCancel": "هل أنت تأكد من رغبتك في إلغاء هذا الموعد؟",
     "scheduled": "مجدول",
+    "pending": "معلق",
     "confirmed": "مؤكد",
     "completed": "مكتمل",
     "cancelled": "ملغي",
+    "doctor": "الطبيب",
     "noAppointments": "لا توجد مواعيد مسجلة لهذه الفترة."
   },
   "patients": {
