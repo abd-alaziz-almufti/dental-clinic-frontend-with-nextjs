@@ -249,7 +249,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 7 — Inventory Management
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/007-inventory/`  
 **Goal**: Inventory items list, purchases list, receive purchase, service consumption templates.
 
