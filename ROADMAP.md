@@ -212,7 +212,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 6 — Billing / Financial Management
-**Status**: ⬜ Not started  
+**Status**: ✅ Complete  
 **Spec**: `specs/006-billing/`  
 **Goal**: Invoice list, invoice detail, record payment, create invoice from visit.
 
