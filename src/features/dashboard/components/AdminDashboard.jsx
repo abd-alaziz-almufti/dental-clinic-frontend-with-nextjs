@@ -26,7 +26,7 @@ export function AdminDashboard() {
           dashboardService.getPatientsSummary(),
         ]);
         setAppointments(appData.data || []);
-        setPatientsCount(patData.meta?.total || appData.meta?.total || 142);
+        setPatientsCount(patData.meta?.total ?? (patData.data?.length || 0));
       } catch (err) {
         console.error("Dashboard error", err);
       } finally {
@@ -42,8 +42,8 @@ export function AdminDashboard() {
       {/* Title */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">{t("overview")}</h1>
-        <p className="text-sm text-slate-500 font-medium">
-          Welcome back to Lumina Dental Practice Management.
+        <p className="text-sm text-slate-500 font-medium mt-0.5">
+          Welcome to Lumina Dental Practice Management.
         </p>
       </div>
 
@@ -51,27 +51,25 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           title={t("todayAppointments")}
-          value={appointments.length || 8}
+          value={appointments.length}
           icon={Calendar}
-          trend="12%"
           color="teal"
         />
         <KpiCard
           title={t("totalPatients")}
-          value={patientsCount || 142}
+          value={patientsCount}
           icon={Users}
-          trend="8%"
           color="blue"
         />
         <KpiCard
           title={t("todayRevenue")}
-          value="$2,450"
+          value="—"
           icon={DollarSign}
           color="green"
         />
         <KpiCard
           title={t("activeDoctors")}
-          value="4"
+          value="—"
           icon={UserCheck}
           color="purple"
         />
@@ -104,25 +102,42 @@ export function AdminDashboard() {
             </div>
           ) : (
             <div className="space-y-3 flex-1 overflow-y-auto max-h-[300px] pe-1">
-              {appointments.map((apt) => (
-                <div
-                  key={apt.id}
-                  className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 hover:bg-white hover:shadow-xs transition-all"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {apt.patient_name || apt.patient?.name || "John Doe"}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {apt.scheduled_time || "10:00 AM"} •{" "}
-                      {apt.doctor_name || "Dr. Smith"}
-                    </p>
+              {appointments.map((apt) => {
+                const patientName =
+                  apt.patient?.full_name ||
+                  (apt.patient?.first_name
+                    ? `${apt.patient.first_name} ${apt.patient.last_name || ""}`.trim()
+                    : null) ||
+                  apt.patient_name ||
+                  "—";
+
+                const doctorName =
+                  apt.doctor?.user?.name ||
+                  apt.doctorProfile?.user?.name ||
+                  apt.doctor_name ||
+                  "—";
+
+                const timeStr = apt.start_time || apt.scheduled_time || "—";
+
+                return (
+                  <div
+                    key={apt.id}
+                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 hover:bg-white hover:shadow-xs transition-all"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {patientName}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {timeStr} • {doctorName}
+                      </p>
+                    </div>
+                    <Badge variant={apt.status === "completed" ? "success" : "info"}>
+                      {apt.status || "scheduled"}
+                    </Badge>
                   </div>
-                  <Badge variant={apt.status === "completed" ? "success" : "info"}>
-                    {apt.status || "scheduled"}
-                  </Badge>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>

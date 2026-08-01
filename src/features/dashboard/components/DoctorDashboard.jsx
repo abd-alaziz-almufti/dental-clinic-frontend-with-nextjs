@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Link } from "@/i18n/routing";
-import { Calendar, UserCheck, Stethoscope, Clock, ChevronRight } from "lucide-react";
+import { Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
 
 export function DoctorDashboard() {
   const t = useTranslations("dashboard");
@@ -34,16 +34,19 @@ export function DoctorDashboard() {
     loadDoctorData();
   }, []);
 
+  const completedCount = appointments.filter((a) => a.status === "completed").length;
+  const pendingCount = appointments.filter((a) => a.status !== "completed" && a.status !== "cancelled").length;
+
   return (
     <div className="space-y-6">
       {/* Personalized Greeting Header */}
       <div className="bg-gradient-to-r from-teal-700 to-teal-900 rounded-2xl p-6 text-white shadow-md flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">
-            {t("goodMorning")}, Dr. {user?.name || "Doctor"} 👋
+            {t("goodMorning")}, {user?.name || "Doctor"} 👋
           </h1>
           <p className="text-teal-100 text-sm mt-1">
-            You have {appointments.length} patients scheduled for consultation today.
+            You have {appointments.length} appointment(s) scheduled for today.
           </p>
         </div>
         <Link href="/appointments">
@@ -57,19 +60,19 @@ export function DoctorDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <KpiCard
           title={t("todayAppointments")}
-          value={appointments.length || 5}
+          value={appointments.length}
           icon={Calendar}
           color="teal"
         />
         <KpiCard
           title="Completed Visits"
-          value="2"
+          value={completedCount}
           icon={UserCheck}
           color="green"
         />
         <KpiCard
           title="Pending Consultation"
-          value="3"
+          value={pendingCount}
           icon={Stethoscope}
           color="amber"
         />
@@ -101,51 +104,64 @@ export function DoctorDashboard() {
           </div>
         ) : (
           <div className="space-y-4">
-            {appointments.map((apt, idx) => (
-              <div
-                key={apt.id || idx}
-                className="flex items-start gap-4 p-4 rounded-xl border border-slate-200/80 bg-white hover:border-teal-300 hover:shadow-sm transition-all"
-              >
-                {/* Time Column */}
-                <div className="text-center min-w-[80px] pt-1">
-                  <p className="text-sm font-bold text-slate-900">
-                    {apt.time || "09:00 AM"}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-medium">30 mins</p>
-                </div>
+            {appointments.map((apt, idx) => {
+              const patientName =
+                apt.patient?.full_name ||
+                (apt.patient?.first_name
+                  ? `${apt.patient.first_name} ${apt.patient.last_name || ""}`.trim()
+                  : null) ||
+                apt.patient_name ||
+                "—";
 
-                {/* Timeline Bar */}
-                <div className="w-1 self-stretch bg-teal-500 rounded-full" />
+              const timeStr = apt.start_time || apt.scheduled_time || "—";
 
-                {/* Content Column */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <h3 className="text-base font-bold text-slate-900 truncate">
-                      {apt.patient_name || apt.patient?.name || "Patient Name"}
-                    </h3>
-                    <Badge variant={apt.status === "completed" ? "success" : "info"}>
-                      {apt.status || "Scheduled"}
-                    </Badge>
+              return (
+                <div
+                  key={apt.id || idx}
+                  className="flex items-start gap-4 p-4 rounded-xl border border-slate-200/80 bg-white hover:border-teal-300 hover:shadow-sm transition-all"
+                >
+                  {/* Time Column */}
+                  <div className="text-center min-w-[80px] pt-1">
+                    <p className="text-sm font-bold text-slate-900">{timeStr}</p>
                   </div>
-                  <p className="text-xs text-slate-500 mb-3">
-                    Reason: {apt.notes || "Regular Checkup & Cleaning"}
-                  </p>
 
-                  <div className="flex items-center gap-3">
-                    <Link href={`/visits?patient_id=${apt.patient_id || 1}`}>
-                      <Button size="sm" variant="primary">
-                        {t("startVisit")}
-                      </Button>
-                    </Link>
-                    <Link href={`/patients/${apt.patient_id || 1}`}>
-                      <Button size="sm" variant="outline">
-                        {t("viewDetails")}
-                      </Button>
-                    </Link>
+                  {/* Timeline Bar */}
+                  <div className="w-1 self-stretch bg-teal-500 rounded-full" />
+
+                  {/* Content Column */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h3 className="text-base font-bold text-slate-900 truncate">
+                        {patientName}
+                      </h3>
+                      <Badge variant={apt.status === "completed" ? "success" : "info"}>
+                        {apt.status || "scheduled"}
+                      </Badge>
+                    </div>
+                    {apt.reason && (
+                      <p className="text-xs text-slate-500 mb-3">
+                        Reason: {apt.reason}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-3 mt-2">
+                      <Link href={`/visits`}>
+                        <Button size="sm" variant="primary">
+                          {t("startVisit")}
+                        </Button>
+                      </Link>
+                      {apt.patient_id && (
+                        <Link href={`/patients/${apt.patient_id}`}>
+                          <Button size="sm" variant="outline">
+                            {t("viewDetails")}
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

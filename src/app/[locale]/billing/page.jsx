@@ -50,12 +50,8 @@ export default function BillingPage() {
       setMeta(res.meta || { current_page: page, last_page: 1, total: (res.data || []).length });
     } catch (err) {
       console.error("Failed to load invoices:", err);
-      // Fallback mock for demonstration when backend is unavailable
-      setInvoices([
-        { id: 1001, invoice_number: "INV-2026-0001", patient: { first_name: "Ahmed", last_name: "Al-Salem" }, total: "850.00", paid_amount: "850.00", remaining_balance: "0.00", status: "paid", created_at: "2026-07-20" },
-        { id: 1002, invoice_number: "INV-2026-0002", patient: { first_name: "Sara", last_name: "Al-Harbi" }, total: "450.00", paid_amount: "200.00", remaining_balance: "250.00", status: "partial", created_at: "2026-07-22" },
-        { id: 1003, invoice_number: "INV-2026-0003", patient: { first_name: "Khalid", last_name: "Al-Mutairi" }, total: "1200.00", paid_amount: "0.00", remaining_balance: "1200.00", status: "unpaid", created_at: "2026-07-25" },
-      ]);
+      setInvoices([]);
+      setMeta({ current_page: 1, last_page: 1, total: 0 });
     } finally {
       setLoading(false);
     }
@@ -140,8 +136,8 @@ export default function BillingPage() {
                 <tbody className="divide-y divide-slate-100">
                   {invoices.map((inv) => {
                     const patientName = inv.patient
-                      ? `${inv.patient.first_name || ""} ${inv.patient.last_name || ""}`.trim()
-                      : inv.patient_name || "Patient";
+                      ? (inv.patient.full_name || `${inv.patient.first_name || ""} ${inv.patient.last_name || ""}`.trim())
+                      : inv.patient_name || "—";
                     const remaining = parseFloat(inv.remaining_balance || inv.balance || 0);
                     const isSettled = remaining <= 0 || inv.status === "paid" || inv.status === "cancelled";
 

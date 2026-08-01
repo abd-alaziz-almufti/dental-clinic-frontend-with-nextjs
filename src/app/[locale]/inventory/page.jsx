@@ -79,15 +79,10 @@ export default function InventoryPage() {
       });
       setItems(res.data || []);
       setItemsMeta(res.meta || { current_page: itemPage, last_page: 1, total: (res.data || []).length });
-    } catch {
-      // Mock fallback
-      setItems([
-        { id: 1, name: "Composite Resin A2", code: "CR-A2", unit: "g", stocks: [{ quantity_on_hand: 45, reorder_level: 50 }] },
-        { id: 2, name: "Nitrile Gloves M", code: "GL-M", unit: "box", stocks: [{ quantity_on_hand: 8, reorder_level: 5 }] },
-        { id: 3, name: "Dental Floss", code: "DF-01", unit: "roll", stocks: [{ quantity_on_hand: 0, reorder_level: 10 }] },
-        { id: 4, name: "Disposable Bibs", code: "DB-01", unit: "pack", stocks: [{ quantity_on_hand: 120, reorder_level: 20 }] },
-      ]);
-      setItemsMeta({ current_page: 1, last_page: 1, total: 4 });
+    } catch (err) {
+      console.error("Failed to load inventory items:", err);
+      setItems([]);
+      setItemsMeta({ current_page: 1, last_page: 1, total: 0 });
     } finally {
       setLoading(false);
     }
@@ -103,14 +98,10 @@ export default function InventoryPage() {
       });
       setPurchases(res.data || []);
       setPurchasesMeta(res.meta || { current_page: purchasePage, last_page: 1, total: (res.data || []).length });
-    } catch {
-      // Mock fallback
-      setPurchases([
-        { id: 201, supplier: { name: "MedSupply Co." }, branch: { name: "Main Branch" }, status: "pending", total_cost: "1200.00", created_at: "2026-07-20" },
-        { id: 202, supplier: { name: "Dental Direct" }, branch: { name: "East Branch" }, status: "received", total_cost: "540.00", created_at: "2026-07-15" },
-        { id: 203, supplier: null, branch: { name: "Main Branch" }, status: "cancelled", total_cost: "300.00", created_at: "2026-07-10" },
-      ]);
-      setPurchasesMeta({ current_page: 1, last_page: 1, total: 3 });
+    } catch (err) {
+      console.error("Failed to load purchases:", err);
+      setPurchases([]);
+      setPurchasesMeta({ current_page: 1, last_page: 1, total: 0 });
     } finally {
       setLoading(false);
     }

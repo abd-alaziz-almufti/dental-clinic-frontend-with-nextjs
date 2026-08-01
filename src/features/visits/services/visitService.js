@@ -2,7 +2,7 @@ import { api } from "@/config/axios";
 
 export const visitService = {
   async getVisits({ page = 1, per_page = 15, status = "", doctor_id = "", patient_id = "" } = {}) {
-    const params = { page, per_page };
+    const params = { page, per_page, include: "patient,doctorProfile.user" };
     if (status) params["filter[status]"] = status;
     if (doctor_id) params["filter[doctor_profile_id]"] = doctor_id;
     if (patient_id) params["filter[patient_id]"] = patient_id;

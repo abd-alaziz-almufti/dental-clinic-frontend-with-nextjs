@@ -30,26 +30,8 @@ export default function InvoiceDetailPage() {
       setInvoice(res.data || res);
     } catch (err) {
       console.error("Failed to load invoice:", err);
-      // Fallback mock data for demonstration
-      setInvoice({
-        id: invoiceId,
-        invoice_number: `INV-2026-${String(invoiceId).padStart(4, "0")}`,
-        status: "partial",
-        total: "1050.00",
-        paid_amount: "400.00",
-        remaining_balance: "650.00",
-        created_at: "2026-07-25T09:30:00",
-        due_date: "2026-08-25",
-        patient: { first_name: "Ahmed", last_name: "Al-Salem", phone: "+966 50 555 1234", national_id: "1234567890" },
-        items: [
-          { id: 1, service_name: "Dental Cleaning & Polishing", tooth_number: "All", quantity: 1, unit_price: "150.00", discount: "0.00" },
-          { id: 2, service_name: "Composite Resin Filling", tooth_number: "14", quantity: 2, unit_price: "400.00", discount: "50.00" },
-          { id: 3, service_name: "Periapical X-Ray", tooth_number: "14", quantity: 1, unit_price: "100.00", discount: "0.00" },
-        ],
-        payments: [
-          { id: 1, amount: "400.00", payment_method: "card", payment_date: "2026-07-25", notes: "Initial deposit" },
-        ],
-      });
+      setError(err.response?.data?.message || "Invoice record not found.");
+      setInvoice(null);
     } finally {
       setLoading(false);
     }
@@ -89,8 +71,8 @@ export default function InvoiceDetailPage() {
   const paidAmount = parseFloat(invoice.paid_amount || 0);
   const remaining = parseFloat(invoice.remaining_balance || invoice.balance || 0);
   const patientName = invoice.patient
-    ? `${invoice.patient.first_name || ""} ${invoice.patient.last_name || ""}`.trim()
-    : "Patient";
+    ? (invoice.patient.full_name || `${invoice.patient.first_name || ""} ${invoice.patient.last_name || ""}`.trim())
+    : "—";
   const isSettled = remaining <= 0 || invoice.status === "paid" || invoice.status === "cancelled";
 
   return (

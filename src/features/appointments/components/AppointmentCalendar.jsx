@@ -29,13 +29,18 @@ export function AppointmentCalendar({ appointments = [], onCancelClick }) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {appointments.map((apt) => {
         const patientName =
-          apt.patient_name ||
+          apt.patient?.full_name ||
           (apt.patient
             ? `${apt.patient.first_name || ""} ${apt.patient.last_name || ""}`.trim()
-            : "Patient");
+            : null) ||
+          apt.patient_name ||
+          "—";
         const doctorName =
+          apt.doctor?.user?.name ||
+          apt.doctor_profile?.user?.name ||
+          apt.doctorProfile?.user?.name ||
           apt.doctor_name ||
-          (apt.doctor_profile?.user ? apt.doctor_profile.user.name : "Dr. Smith");
+          "—";
         const status = (apt.status || "scheduled").toLowerCase();
 
         return (

@@ -105,17 +105,24 @@ export default function VisitsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {visits.map((v) => {
                     const patientName =
-                      v.patient_name ||
+                      v.patient?.full_name ||
                       (v.patient
                         ? `${v.patient.first_name || ""} ${v.patient.last_name || ""}`.trim()
-                        : "Patient");
-                    const doctorName = v.doctor_name || "Dr. Smith";
+                        : null) ||
+                      v.patient_name ||
+                      "—";
+                    const doctorName =
+                      v.doctor?.user?.name ||
+                      v.doctor_profile?.user?.name ||
+                      v.doctorProfile?.user?.name ||
+                      v.doctor_name ||
+                      "—";
                     const statusKey = v.status || "in_progress";
 
                     return (
                       <tr key={v.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-6 py-4 font-mono text-xs text-slate-700">
-                          {v.checked_in_at || v.created_at || "2026-07-26 10:00"}
+                          {v.checked_in_at?.split("T")[0] || v.created_at?.split("T")[0] || "—"}
                         </td>
                         <td className="px-6 py-4 font-bold text-slate-900">
                           {patientName}

@@ -8,9 +8,10 @@ export function PatientSummarySidebar({ patient }) {
   if (!patient) return null;
 
   const fullName =
+    patient.full_name ||
     `${patient.first_name || ""} ${patient.last_name || ""}`.trim() ||
     patient.name ||
-    "Patient";
+    "—";
 
   const medical = patient.medical_profile || patient.medicalProfile || {};
 

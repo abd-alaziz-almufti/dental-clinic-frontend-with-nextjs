@@ -46,7 +46,7 @@ export function CancelAppointmentModal({ isOpen, onClose, appointment, onSuccess
 
         <div className="p-3 bg-slate-50 rounded-lg text-xs space-y-1 text-slate-700">
           <p>
-            <strong>Patient:</strong> {appointment.patient_name || appointment.patient?.name || "Patient"}
+            <strong>Patient:</strong> {appointment.patient?.full_name || (appointment.patient ? `${appointment.patient.first_name || ""} ${appointment.patient.last_name || ""}`.trim() : null) || appointment.patient_name || "—"}
           </p>
           <p>
             <strong>Date:</strong> {appointment.appointment_date || appointment.date || "Today"}

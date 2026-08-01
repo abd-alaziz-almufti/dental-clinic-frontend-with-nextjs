@@ -2,7 +2,7 @@ import { api } from "@/config/axios";
 
 export const appointmentService = {
   async getAppointments({ date, doctor_id, status } = {}) {
-    const params = {};
+    const params = { include: "patient,doctorProfile.user" };
     if (date) params["filter[appointment_date]"] = date;
     if (doctor_id) params["filter[doctor_profile_id]"] = doctor_id;
     if (status) params["filter[status]"] = status;
