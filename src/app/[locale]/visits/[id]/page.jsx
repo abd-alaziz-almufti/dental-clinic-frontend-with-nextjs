@@ -23,18 +23,23 @@ export default function VisitDetailPage() {
   const commonT = useTranslations("common");
 
   const { hasRole } = useAuth();
-  // Doctor and Super-Admin have write access; Admin role is read-only
-  const isReadOnly = hasRole("admin") && !hasRole("super-admin") && !hasRole("doctor");
-
   const [loading, setLoading] = useState(true);
   const [visit, setVisit] = useState(null);
   const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const [chiefComplaint, setChiefComplaint] = useState("");
   const [diagnosisNotes, setDiagnosisNotes] = useState("");
   const [teeth, setTeeth] = useState([]);
   const [services, setServices] = useState([]);
-  const [saving, setSaving] = useState(false);
+
+  // Visit is read-only if user is admin (without doctor/super-admin), OR if visit status is completed/closed, OR if it has an active invoice
+  const isVisitImmutable = visit && (
+    visit.status === "completed" ||
+    visit.status === "closed" ||
+    visit.has_active_invoice
+  );
+  const isReadOnly = (hasRole("admin") && !hasRole("super-admin") && !hasRole("doctor")) || isVisitImmutable;
 
   useEffect(() => {
     async function loadVisit() {
@@ -43,11 +48,10 @@ export default function VisitDetailPage() {
         const res = await visitService.getVisitById(visitId);
         const data = res.data || res;
         setVisit(data);
-        // Fix C: use correct API field names from VisitResource
         setChiefComplaint(data.chief_complaint || "");
         setDiagnosisNotes(data.diagnosis || data.doctor_notes || "");
-        setTeeth(data.teeth || []);                    // VisitResource returns `teeth`, not `visit_teeth`
-        setServices(data.services || []);              // VisitResource returns `services`, not `visit_services`
+        setTeeth(data.teeth || []);
+        setServices(data.services || []);
       } catch (err) {
         console.error("Failed to load visit details", err);
         setError("Visit record not found or network error.");
@@ -63,44 +67,49 @@ export default function VisitDetailPage() {
 
   const handleToothConditionChange = async (toothNum, condition) => {
     if (isReadOnly) return;
-
-    // Update local state immediately for fast feedback
-    const updatedTeeth = [...teeth.filter((t) => (t.tooth_number || t.tooth_id) !== toothNum)];
-    updatedTeeth.push({ tooth_number: toothNum, condition });
-    setTeeth(updatedTeeth);
+    setActionError(null);
 
     try {
-      // Fix A: entry_type must be "diagnosis" or "treatment" (backend DentalChartEntryRequest)
-      await visitService.saveToothCondition(visitId, {
+      const res = await visitService.saveToothCondition(visitId, {
         tooth_id: toothNum,
         tooth_condition_id: condition === "decay" ? 1 : condition === "filled" ? 2 : 3,
         entry_type: "diagnosis",
       });
+      const added = res.data || res;
+      setTeeth((prev) => [...prev.filter((t) => (t.tooth_number || t.tooth_id) !== toothNum), added]);
     } catch (err) {
       console.error("Failed to save tooth condition", err);
+      const msg = err.response?.data?.message || "Cannot modify tooth condition for this visit.";
+      setActionError(msg);
     }
   };
 
   const handleAddService = async (serviceData) => {
     if (isReadOnly) return;
-    const newService = { id: Date.now(), ...serviceData };
-    setServices((prev) => [...prev, newService]);
+    setActionError(null);
 
     try {
-      await visitService.addVisitService(visitId, serviceData);
+      const res = await visitService.addVisitService(visitId, serviceData);
+      const added = res.data || res;
+      setServices((prev) => [...prev, added]);
     } catch (err) {
       console.error("Failed to add service", err);
+      const msg = err.response?.data?.message || "Cannot add service to this visit.";
+      setActionError(msg);
     }
   };
 
   const handleRemoveService = async (serviceId) => {
     if (isReadOnly) return;
-    setServices((prev) => prev.filter((s) => s.id !== serviceId));
+    setActionError(null);
 
     try {
       await visitService.removeVisitService(visitId, serviceId);
+      setServices((prev) => prev.filter((s) => s.id !== serviceId));
     } catch (err) {
       console.error("Failed to remove service", err);
+      const msg = err.response?.data?.message || "Cannot remove service from this visit.";
+      setActionError(msg);
     }
   };
 
@@ -164,6 +173,17 @@ export default function VisitDetailPage() {
           <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-semibold flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
             <span>{t("readOnlyNotice")}</span>
+          </div>
+        )}
+
+        {/* Action Error Banner */}
+        {actionError && (
+          <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs font-semibold flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{actionError}</span>
+            </div>
+            <button onClick={() => setActionError(null)} className="text-red-500 hover:text-red-700 font-bold">✕</button>
           </div>
         )}
 
