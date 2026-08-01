@@ -268,7 +268,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ### Exit Criteria
 - Inventory list loads with real stock levels
 - Purchase workflow (create → receive) works end-to-end
-- inventory-manager role sees Inventory in sidebar; admin sees read-only view
+- admin/super-admin/doctor roles see Inventory in sidebar; admin/super-admin manage stock & purchases
 - EN and AR layouts correct
 
 ### Dependencies
