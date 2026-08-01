@@ -112,9 +112,8 @@ export default function VisitsPage() {
                       v.patient_name ||
                       "—";
                     const doctorName =
+                      v.doctor?.name ||
                       v.doctor?.user?.name ||
-                      v.doctor_profile?.user?.name ||
-                      v.doctorProfile?.user?.name ||
                       v.doctor_name ||
                       "—";
                     const statusKey = v.status || "in_progress";
