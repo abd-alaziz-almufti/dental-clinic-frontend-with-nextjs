@@ -99,6 +99,8 @@
     "paid": "مدفوعة",
     "partial": "مدفوعة جزئياً",
     "unpaid": "غير مدفوعة",
+    "issued": "صادرة",
+    "draft": "مسودة",
     "overdue": "متأخرة",
     "cancelled": "ملغاة",
     "recordPayment": "+ تسجيل دفعة",

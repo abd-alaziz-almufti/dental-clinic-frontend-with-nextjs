@@ -99,6 +99,8 @@
     "paid": "Paid",
     "partial": "Partially Paid",
     "unpaid": "Unpaid",
+    "issued": "Issued",
+    "draft": "Draft",
     "overdue": "Overdue",
     "cancelled": "Cancelled",
     "recordPayment": "+ Record Payment",
