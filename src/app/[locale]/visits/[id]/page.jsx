@@ -43,13 +43,11 @@ export default function VisitDetailPage() {
         const res = await visitService.getVisitById(visitId);
         const data = res.data || res;
         setVisit(data);
-        setChiefComplaint(data.chief_complaint || "Patient complains of sharp pain in upper right quadrant.");
-        setDiagnosisNotes(data.notes || "Tooth #14 shows deep caries near pulp cavity.");
-        setTeeth(data.visit_teeth || data.visitTeeth || []);
-        setServices(data.visit_services || data.visitServices || [
-          { id: 1, service_name: "Dental Cleaning & Polishing", tooth_number: "All", price: 100, quantity: 1, discount: 0 },
-          { id: 2, service_name: "Composite Resin Filling", tooth_number: "14", price: 150, quantity: 1, discount: 0 }
-        ]);
+        // Fix C: use correct API field names from VisitResource
+        setChiefComplaint(data.chief_complaint || "");
+        setDiagnosisNotes(data.diagnosis || data.doctor_notes || "");
+        setTeeth(data.teeth || []);                    // VisitResource returns `teeth`, not `visit_teeth`
+        setServices(data.services || []);              // VisitResource returns `services`, not `visit_services`
       } catch (err) {
         console.error("Failed to load visit details", err);
         setError("Visit record not found or network error.");
@@ -72,10 +70,11 @@ export default function VisitDetailPage() {
     setTeeth(updatedTeeth);
 
     try {
+      // Fix A: entry_type must be "diagnosis" or "treatment" (backend DentalChartEntryRequest)
       await visitService.saveToothCondition(visitId, {
         tooth_id: toothNum,
         tooth_condition_id: condition === "decay" ? 1 : condition === "filled" ? 2 : 3,
-        entry_type: "initial",
+        entry_type: "diagnosis",
       });
     } catch (err) {
       console.error("Failed to save tooth condition", err);

@@ -18,9 +18,9 @@ export function TreatmentPlanTable({ services = [], onAddService, onRemoveServic
 
   const calculateTotal = () => {
     return services.reduce((acc, item) => {
-      const itemPrice = parseFloat(item.price || item.unit_price || 0);
+      const itemPrice = parseFloat(item.unit_price || item.price || 0);
       const itemQty = parseInt(item.quantity || item.qty || 1, 10);
-      const itemDisc = parseFloat(item.discount || 0);
+      const itemDisc = parseFloat(item.discount_amount || item.discount || 0);
       return acc + (itemPrice * itemQty - itemDisc);
     }, 0);
   };
@@ -30,11 +30,12 @@ export function TreatmentPlanTable({ services = [], onAddService, onRemoveServic
     if (!serviceName) return;
 
     onAddService?.({
+      service_id: 1, // Default service_id for recording treatment
       service_name: serviceName,
-      tooth_number: toothNum,
-      price: parseFloat(price),
+      tooth_number: toothNum ? parseInt(toothNum, 10) : null,
+      unit_price: parseFloat(price),
       quantity: parseInt(qty, 10),
-      discount: parseFloat(discount),
+      discount_amount: parseFloat(discount),
     });
 
     setShowAddForm(false);
@@ -144,15 +145,15 @@ export function TreatmentPlanTable({ services = [], onAddService, onRemoveServic
             </thead>
             <tbody className="divide-y divide-slate-100">
               {services.map((item, idx) => {
-                const itemPrice = parseFloat(item.price || item.unit_price || 0);
+                const itemPrice = parseFloat(item.unit_price || item.price || 0);
                 const itemQty = parseInt(item.quantity || item.qty || 1, 10);
-                const itemDisc = parseFloat(item.discount || 0);
-                const itemTotal = itemPrice * itemQty - itemDisc;
+                const itemDisc = parseFloat(item.discount_amount || item.discount || 0);
+                const itemTotal = parseFloat(item.total || (itemPrice * itemQty - itemDisc));
 
                 return (
                   <tr key={item.id || idx} className="hover:bg-slate-50/50">
                     <td className="px-4 py-3 font-semibold text-slate-900">
-                      {item.service_name || item.service?.name || "Dental Service"}
+                      {item.service?.name || item.service_name || "Dental Service"}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-slate-600">
                       {item.tooth_number || item.tooth_id || "All"}

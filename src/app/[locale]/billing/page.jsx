@@ -34,7 +34,12 @@ export default function BillingPage() {
 
   // KPI aggregates (derived from list data)
   const totalBilled = invoices.reduce((s, inv) => s + parseFloat(inv.total || 0), 0);
-  const totalPaid = invoices.reduce((s, inv) => s + parseFloat(inv.paid_amount || 0), 0);
+  const totalPaid = invoices.reduce((s, inv) => {
+    const paid = inv.paid_amount !== undefined
+      ? parseFloat(inv.paid_amount || 0)
+      : parseFloat(inv.total || 0) - parseFloat(inv.remaining_balance || 0);
+    return s + (isNaN(paid) ? 0 : paid);
+  }, 0);
   const outstanding = invoices.reduce((s, inv) => s + parseFloat(inv.remaining_balance || inv.balance || 0), 0);
 
   const fetchInvoices = useCallback(async () => {

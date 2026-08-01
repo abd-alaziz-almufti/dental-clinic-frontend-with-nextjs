@@ -20,7 +20,8 @@ export function OdontogramGrid({ teeth = [], onToothConditionChange, readOnly = 
   teeth.forEach((item) => {
     const num = item.tooth_number || item.tooth_id || item.tooth?.number;
     if (num) {
-      toothConditionMap[num] = item.condition || item.status || "decay";
+      const cond = (item.condition_code || item.condition || item.status || "decay").toLowerCase();
+      toothConditionMap[num] = cond;
     }
   });
 
