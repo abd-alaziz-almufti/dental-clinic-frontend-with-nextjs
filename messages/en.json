@@ -260,5 +260,43 @@
     "payment_exceeds_balance": "The payment amount exceeds the remaining balance.",
     "too_many_requests": "Too many attempts. Please wait before trying again.",
     "server_error": "An unexpected error occurred. Please try again."
+  },
+  "users": {
+    "title": "Users & Staff Registry",
+    "subtitle": "Manage staff accounts, doctor profiles, and system credentials.",
+    "userRegistry": "Staff Registry",
+    "permissionsMatrix": "Role Permissions Matrix",
+    "createUser": "Create User Account",
+    "name": "Full Name",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "role": "Role",
+    "branch": "Branch Location",
+    "status": "Account Status",
+    "createdDate": "Date Created",
+    "passwordMismatch": "Password and confirmation do not match.",
+    "licenseRequired": "License number is required for doctor accounts."
+  },
+  "settings": {
+    "title": "Practice & System Settings",
+    "subtitle": "Configure practice identity details, tax registration number, and interface preferences.",
+    "practiceProfile": "Branch Practice Identity",
+    "practiceSubtitle": "Update official clinic details printed on invoice headers, receipts, and clinical records.",
+    "systemPreferences": "Interface Preferences",
+    "preferencesSubtitle": "Client-side display preferences for language, layout direction, and date rendering.",
+    "clinicName": "Practice / Branch Name",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "address": "Address Street",
+    "city": "City",
+    "taxNumber": "Tax Registration Number (VAT / CR)",
+    "currency": "Display Currency Code",
+    "settingsSaved": "Practice settings updated successfully."
+  },
+  "permissions": {
+    "title": "Role Access Boundaries & Security Matrix",
+    "subtitle": "System access rights enforced per role across practice modules."
   }
 }
