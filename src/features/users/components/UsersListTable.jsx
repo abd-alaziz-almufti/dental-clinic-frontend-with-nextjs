@@ -37,9 +37,26 @@ export function UsersListTable({ users = [], loading = false }) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {users.map((user) => {
-            const roleKey = user.roles?.[0]?.name || user.role || "admin";
+            const firstRole = Array.isArray(user.roles) ? user.roles[0] : user.roles;
+            const rawRole = typeof firstRole === "string" ? firstRole : (firstRole?.name || user.role || "admin");
+            const roleKey = (rawRole || "admin").toLowerCase();
             const RoleIcon = roleIconMap[roleKey] || UserCheck;
             const branchName = user.branch?.name || "Main Branch";
+
+            let roleLabel = roleKey;
+            try {
+              if (roleKey === "super-admin" || roleKey === "super_admin") {
+                roleLabel = roleT("superAdmin");
+              } else if (roleKey === "admin") {
+                roleLabel = roleT("admin");
+              } else if (roleKey === "doctor") {
+                roleLabel = roleT("doctor");
+              } else {
+                roleLabel = roleT(roleKey);
+              }
+            } catch {
+              roleLabel = roleKey;
+            }
 
             return (
               <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
@@ -67,7 +84,7 @@ export function UsersListTable({ users = [], loading = false }) {
                 <td className="px-6 py-4">
                   <Badge variant={roleVariantMap[roleKey] || "neutral"} className="inline-flex items-center gap-1.5">
                     <RoleIcon className="w-3.5 h-3.5" />
-                    <span>{roleT(roleKey === "super_admin" ? "superAdmin" : roleKey === "super-admin" ? "superAdmin" : roleKey) || roleKey}</span>
+                    <span>{roleLabel}</span>
                   </Badge>
                 </td>
 

@@ -89,10 +89,11 @@ export function AuthProvider({ children }) {
   );
 
   const hasAnyRole = useCallback(
-    (roles) => {
+    (...roles) => {
       if (!user || !user.roles) return false;
       if (user.roles.includes("super-admin")) return true;
-      return roles.some((role) => user.roles.includes(role));
+      const targetRoles = Array.isArray(roles[0]) ? roles[0] : roles;
+      return targetRoles.some((role) => user.roles.includes(role));
     },
     [user]
   );
