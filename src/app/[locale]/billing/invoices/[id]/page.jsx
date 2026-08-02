@@ -13,6 +13,15 @@ import { RecordPaymentModal } from "@/features/billing/components/RecordPaymentM
 import { billingService } from "@/features/billing/services/billingService";
 import { ArrowLeft, Printer, Receipt, CreditCard } from "lucide-react";
 
+function formatText(val) {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val.en || val.ar || Object.values(val).find((v) => typeof v === "string") || "";
+  }
+  return String(val);
+}
+
 export default function InvoiceDetailPage() {
   const params = useParams();
   const invoiceId = params.id;
@@ -185,7 +194,7 @@ export default function InvoiceDetailPage() {
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/40">
                         <td className="px-5 py-3.5 font-semibold text-slate-900">
-                          {item.service_name || item.service?.name || "Dental Service"}
+                          {formatText(item.service_name) || formatText(item.service?.name) || "Dental Service"}
                         </td>
                         <td className="px-5 py-3.5 font-mono text-xs text-slate-600">
                           {item.tooth_number || item.tooth_id || "—"}

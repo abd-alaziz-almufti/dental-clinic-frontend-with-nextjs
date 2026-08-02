@@ -6,6 +6,15 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Trash2, Plus, DollarSign } from "lucide-react";
 
+function formatText(val) {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "object") {
+    return val.en || val.ar || Object.values(val).find((v) => typeof v === "string") || "";
+  }
+  return String(val);
+}
+
 export function TreatmentPlanTable({ services = [], onAddService, onRemoveService, readOnly = false }) {
   const t = useTranslations("visits");
 
@@ -153,7 +162,7 @@ export function TreatmentPlanTable({ services = [], onAddService, onRemoveServic
                 return (
                   <tr key={item.id || idx} className="hover:bg-slate-50/50">
                     <td className="px-4 py-3 font-semibold text-slate-900">
-                      {item.service?.name || item.service_name || "Dental Service"}
+                      {formatText(item.service?.name) || formatText(item.service_name) || "Dental Service"}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-slate-600">
                       {item.tooth_number || item.tooth_id || "All"}
