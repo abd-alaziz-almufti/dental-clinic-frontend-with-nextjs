@@ -6,12 +6,13 @@ import { Link } from "@/i18n/routing";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PatientAvatar } from "@/features/patients/components/PatientAvatar";
 import { PatientStatusBadge } from "@/features/patients/components/PatientStatusBadge";
 import { AddPatientModal } from "@/features/patients/components/AddPatientModal";
 import { patientService } from "@/features/patients/services/patientService";
-import { Search, UserPlus, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, UserPlus, Eye, ChevronLeft, ChevronRight, Users } from "lucide-react";
 
 export default function PatientsPage() {
   const t = useTranslations("patients");
@@ -86,16 +87,13 @@ export default function PatientsPage() {
         {/* Patients Data Table */}
         <Card className="shadow-xs overflow-hidden">
           {loading ? (
-            <div className="py-16 flex justify-center">
-              <Spinner size="lg" />
-            </div>
+            <TableSkeleton rows={5} cols={6} />
           ) : patients.length === 0 ? (
-            <div className="py-16 text-center text-slate-400">
-              <p className="font-semibold text-base">No patients found</p>
-              <p className="text-xs text-slate-400 mt-1">
-                Try adjusting your search criteria or register a new patient.
-              </p>
-            </div>
+            <EmptyState
+              icon={Users}
+              title="No patients found"
+              description="Try adjusting your search criteria or click 'Add Patient' to register a new record."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-start border-collapse">

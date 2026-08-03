@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -32,7 +32,7 @@ export default function InvoiceDetailPage() {
   const [error, setError] = useState(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     setLoading(true);
     try {
       const res = await billingService.getInvoiceById(invoiceId);
@@ -44,11 +44,11 @@ export default function InvoiceDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoiceId]);
 
   useEffect(() => {
     if (invoiceId) loadInvoice();
-  }, [invoiceId]);
+  }, [invoiceId, loadInvoice]);
 
   if (loading) {
     return (

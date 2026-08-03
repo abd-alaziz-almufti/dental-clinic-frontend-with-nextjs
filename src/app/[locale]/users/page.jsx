@@ -6,6 +6,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
+import { TableSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { UsersListTable } from "@/features/users/components/UsersListTable";
 import { CreateUserModal } from "@/features/users/components/CreateUserModal";
 import { PermissionsMatrix } from "@/features/users/components/PermissionsMatrix";
@@ -140,14 +142,13 @@ export default function UsersPage() {
             {/* Users Table */}
             <Card className="shadow-xs overflow-hidden">
               {loading ? (
-                <div className="py-16 flex justify-center">
-                  <Spinner size="lg" />
-                </div>
+                <TableSkeleton rows={5} cols={5} />
               ) : users.length === 0 ? (
-                <div className="py-16 text-center text-slate-400">
-                  <Users className="w-10 h-10 mx-auto mb-3 stroke-1" />
-                  <p className="font-semibold text-base">No staff user accounts found</p>
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="No staff user accounts found"
+                  description="No user accounts match the selected role filter or search term."
+                />
               ) : (
                 <UsersListTable users={users} />
               )}

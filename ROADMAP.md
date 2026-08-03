@@ -277,7 +277,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 8 — Users & Permissions + Settings Stub
-**Status**: ⬜ Not started  
+**Status**: ✅ COMPLETE  
 **Spec**: `specs/008-users/`  
 **Goal**: User management list + create user; permissions matrix display; settings stub page.
 
@@ -304,7 +304,7 @@ i18n/locale routing scaffolding. No visible UI beyond a locale-aware "coming soo
 ---
 
 ## Phase 9 — Polish, RTL Audit & Accessibility Pass
-**Status**: ⬜ Not started  
+**Status**: ✅ COMPLETE  
 **Spec**: `specs/009-polish/`  
 **Goal**: Systematic cross-cutting quality pass — RTL correctness, loading states, empty states,
 error boundaries, accessibility gate.
@@ -342,12 +342,13 @@ error boundaries, accessibility gate.
 |---|---|---|---|
 | 0 | Foundation & Constitution | ✅ COMPLETE | N/A |
 | 1 | Authentication | ✅ COMPLETE | `specs/001-authentication/` |
-| 2 | Dashboard | ⬜ Not started | `specs/002-dashboard/` |
-| 3 | Patient Registry | ⬜ Not started | `specs/003-patient-registry/` |
-| 4 | Appointments | ⬜ Not started | `specs/004-appointments/` |
-| 5 | Visit / Clinical | ⬜ Not started | `specs/005-clinical-visit/` |
-| 6 | Billing | ⬜ Not started | `specs/006-billing/` |
-| 7 | Inventory | ⬜ Not started | `specs/007-inventory/` |
-| 8 | Users & Permissions | ⬜ Not started | `specs/008-users/` |
-| 9 | Polish & RTL Audit | ⬜ Not started | `specs/009-polish/` |
+| 2 | Dashboard | ✅ COMPLETE | `specs/002-dashboard/` |
+| 3 | Patient Registry | ✅ COMPLETE | `specs/003-patient-registry/` |
+| 4 | Appointments | ✅ COMPLETE | `specs/004-appointments/` |
+| 5 | Visit / Clinical | ✅ COMPLETE | `specs/005-clinical-visit/` |
+| 6 | Billing | ✅ COMPLETE | `specs/006-billing/` |
+| 7 | Inventory | ✅ COMPLETE | `specs/007-inventory/` |
+| 8 | Users & Permissions | ✅ COMPLETE | `specs/008-users/` |
+| 9 | Polish & RTL Audit | ✅ COMPLETE | `specs/009-polish/` |
+
 

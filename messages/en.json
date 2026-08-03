@@ -259,7 +259,13 @@
     "invalid_invoice_status": "This invoice cannot be modified in its current status.",
     "payment_exceeds_balance": "The payment amount exceeds the remaining balance.",
     "too_many_requests": "Too many attempts. Please wait before trying again.",
-    "server_error": "An unexpected error occurred. Please try again."
+    "server_error": "An unexpected error occurred. Please try again.",
+    "notFoundTitle": "Page Not Found",
+    "notFoundSubtitle": "The page or resource you are looking for does not exist or has been moved.",
+    "somethingWentWrong": "Something went wrong",
+    "errorSubtitle": "An unexpected application error occurred. You can attempt to refresh the page view.",
+    "tryAgain": "Try Again",
+    "backToDashboard": "Back to Dashboard"
   },
   "users": {
     "title": "Users & Staff Registry",
