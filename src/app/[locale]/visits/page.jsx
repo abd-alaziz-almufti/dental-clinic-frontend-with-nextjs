@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { visitService } from "@/features/visits/services/visitService";
-import { Stethoscope, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { Stethoscope, ChevronLeft, ChevronRight, Filter, Calendar } from "lucide-react";
 
 export default function VisitsPage() {
   const t = useTranslations("visits");
@@ -56,6 +56,14 @@ export default function VisitsPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
             <p className="text-sm text-slate-500 font-medium">{t("subtitle")}</p>
+          </div>
+          <div className="shrink-0">
+            <Link href="/appointments">
+              <Button variant="primary" size="sm" className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
+                {t("newVisitHint")}
+              </Button>
+            </Link>
           </div>
         </div>
 

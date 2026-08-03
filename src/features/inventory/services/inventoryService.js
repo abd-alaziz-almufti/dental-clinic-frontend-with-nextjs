@@ -16,6 +16,11 @@ export const inventoryService = {
     return res.data;
   },
 
+  async createItem(data) {
+    const res = await api.post("/inventory/items", data);
+    return res.data;
+  },
+
   async getPurchases({ page = 1, per_page = 15, status = "" } = {}) {
     const params = { page, per_page, include: "items,supplier,branch" };
     if (status) params["filter[status]"] = status;

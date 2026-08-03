@@ -82,7 +82,9 @@
     "filterLowStock": "Low Stock Only",
     "actions": "Actions",
     "purchaseDate": "Purchase Date",
-    "notes": "Notes"
+    "notes": "Notes",
+    "addItem": "Add Inventory Item",
+    "description": "Description"
   },
   "billing": {
     "title": "Billing & Financial Management",
@@ -155,7 +157,8 @@
     "discount": "Discount",
     "total": "Total",
     "actions": "Actions",
-    "readOnlyNotice": "Read-Only Mode: You are viewing this examination in administrative view."
+    "readOnlyNotice": "Read-Only Mode: You are viewing this examination in administrative view.",
+    "newVisitHint": "Book Appointment → Check-In"
   },
   "appointments": {
     "title": "Appointments & Calendar",
