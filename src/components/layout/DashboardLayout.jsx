@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "./Sidebar";
@@ -9,16 +9,16 @@ import { Spinner } from "@/components/ui/Spinner";
 
 export function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, token } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [loading, isAuthenticated, router]);
+  // Fast path: if we have a stored token, show the shell immediately.
+  // This prevents the "white flash + spinner" on every navigation.
+  const hasStoredToken =
+    typeof window !== "undefined" && !!localStorage.getItem("token");
 
-  if (loading) {
+  if (loading && !hasStoredToken) {
+    // Only show full-page spinner on a cold-start with no stored session
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Spinner size="lg" />
@@ -26,7 +26,8 @@ export function DashboardLayout({ children }) {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!loading && !isAuthenticated) {
+    router.push("/login");
     return null;
   }
 
@@ -43,3 +44,4 @@ export function DashboardLayout({ children }) {
     </div>
   );
 }
+

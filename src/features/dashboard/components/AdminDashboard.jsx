@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { dashboardService } from "../services/dashboardService";
 import { KpiCard } from "./KpiCard";
@@ -8,34 +8,33 @@ import { QuickActions } from "./QuickActions";
 import { RevenueChart } from "./RevenueChart";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
+import { KpiCardsSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { queryKeys } from "@/lib/queryKeys";
 import { Calendar, Users, DollarSign, Clock, UserCheck } from "lucide-react";
 
 export function AdminDashboard() {
   const t = useTranslations("dashboard");
-  const [loading, setLoading] = useState(true);
-  const [appointments, setAppointments] = useState([]);
-  const [patientsCount, setPatientsCount] = useState(0);
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const [appData, patData] = await Promise.all([
-          dashboardService.getTodayAppointments(),
-          dashboardService.getPatientsSummary(),
-        ]);
-        setAppointments(appData.data || []);
-        setPatientsCount(patData.meta?.total ?? (patData.data?.length || 0));
-      } catch (err) {
-        console.error("Dashboard error", err);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const todayStr = new Date().toISOString().split("T")[0];
 
-    loadData();
-  }, []);
+  const [appointmentsQuery, patientsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: queryKeys.dashboard.todayAppointments(todayStr),
+        queryFn: () => dashboardService.getTodayAppointments(),
+        staleTime: 60 * 1000, // 1 minute — appointments change frequently
+      },
+      {
+        queryKey: queryKeys.dashboard.patientsSummary(),
+        queryFn: () => dashboardService.getPatientsSummary(),
+        staleTime: 5 * 60 * 1000, // 5 minutes — patient count is stable
+      },
+    ],
+  });
+
+  const appointments = appointmentsQuery.data?.data || [];
+  const patientsCount = patientsQuery.data?.meta?.total ?? (patientsQuery.data?.data?.length || 0);
+  const loading = appointmentsQuery.isLoading || patientsQuery.isLoading;
 
   return (
     <div className="space-y-6">
@@ -47,33 +46,37 @@ export function AdminDashboard() {
         </p>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title={t("todayAppointments")}
-          value={appointments.length}
-          icon={Calendar}
-          color="teal"
-        />
-        <KpiCard
-          title={t("totalPatients")}
-          value={patientsCount}
-          icon={Users}
-          color="blue"
-        />
-        <KpiCard
-          title={t("todayRevenue")}
-          value="—"
-          icon={DollarSign}
-          color="green"
-        />
-        <KpiCard
-          title={t("activeDoctors")}
-          value="—"
-          icon={UserCheck}
-          color="purple"
-        />
-      </div>
+      {/* KPI Cards Grid — show skeleton while loading */}
+      {loading ? (
+        <KpiCardsSkeleton count={4} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiCard
+            title={t("todayAppointments")}
+            value={appointments.length}
+            icon={Calendar}
+            color="teal"
+          />
+          <KpiCard
+            title={t("totalPatients")}
+            value={patientsCount}
+            icon={Users}
+            color="blue"
+          />
+          <KpiCard
+            title={t("todayRevenue")}
+            value="—"
+            icon={DollarSign}
+            color="green"
+          />
+          <KpiCard
+            title={t("activeDoctors")}
+            value="—"
+            icon={UserCheck}
+            color="purple"
+          />
+        </div>
+      )}
 
       {/* Quick Actions Panel */}
       <QuickActions />
@@ -92,8 +95,16 @@ export function AdminDashboard() {
           </h3>
 
           {loading ? (
-            <div className="flex-1 flex items-center justify-center py-8">
-              <Spinner />
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-3 rounded-xl border border-slate-100 flex items-center justify-between gap-3">
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </div>
+              ))}
             </div>
           ) : appointments.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center py-8 text-center text-slate-400 text-sm">

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -12,44 +13,37 @@ import { PatientAvatar } from "@/features/patients/components/PatientAvatar";
 import { PatientStatusBadge } from "@/features/patients/components/PatientStatusBadge";
 import { AddPatientModal } from "@/features/patients/components/AddPatientModal";
 import { patientService } from "@/features/patients/services/patientService";
+import { queryKeys } from "@/lib/queryKeys";
 import { Search, UserPlus, Eye, ChevronLeft, ChevronRight, Users } from "lucide-react";
 
 export default function PatientsPage() {
   const t = useTranslations("patients");
   const commonT = useTranslations("common");
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(true);
-  const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchPatients = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await patientService.getPatients({
-        page,
-        per_page: 10,
-        search,
-      });
-      setPatients(res.data || []);
-      setMeta(res.meta || { current_page: page, last_page: 1, total: (res.data || []).length });
-    } catch (err) {
-      console.error("Failed to fetch patients", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
+  const queryParams = { page, per_page: 10, search };
 
-  useEffect(() => {
-    fetchPatients();
-  }, [fetchPatients]);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.patients.list(queryParams),
+    queryFn: () => patientService.getPatients(queryParams),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    placeholderData: (prev) => prev, // keep previous page data while switching pages
+  });
+
+  const patients = data?.data || [];
+  const meta = data?.meta || { current_page: page, last_page: 1, total: patients.length };
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setPage(1);
   };
+
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.patients.all });
 
   return (
     <DashboardLayout>
@@ -86,7 +80,7 @@ export default function PatientsPage() {
 
         {/* Patients Data Table */}
         <Card className="shadow-xs overflow-hidden">
-          {loading ? (
+          {isLoading ? (
             <TableSkeleton rows={5} cols={6} />
           ) : patients.length === 0 ? (
             <EmptyState
@@ -189,7 +183,7 @@ export default function PatientsPage() {
       <AddPatientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={fetchPatients}
+        onSuccess={refetch}
       />
     </DashboardLayout>
   );

@@ -4,6 +4,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { AuthProvider } from "@/context/AuthContext";
+import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import "../globals.css";
 
 const inter = Inter({
@@ -30,10 +31,11 @@ export default async function LocaleLayout({ children, params }) {
     <html lang={locale} dir={dir} className={inter.variable}>
       <body className="antialiased min-h-screen bg-slate-50 text-slate-900">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthProvider>{children}</AuthProvider>
+          <ReactQueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ReactQueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>
   );
 }
-

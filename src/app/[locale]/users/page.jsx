@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { UsersListTable } from "@/features/users/components/UsersListTable";
@@ -13,6 +13,7 @@ import { CreateUserModal } from "@/features/users/components/CreateUserModal";
 import { PermissionsMatrix } from "@/features/users/components/PermissionsMatrix";
 import { userService } from "@/features/users/services/userService";
 import { useAuth } from "@/hooks/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
 import { UserPlus, ShieldAlert, Search, Filter, Users, ShieldCheck } from "lucide-react";
 
 export default function UsersPage() {
@@ -24,36 +25,29 @@ export default function UsersPage() {
   const canAccess = hasAnyRole("super-admin", "admin");
 
   const [activeTab, setActiveTab] = useState("list"); // 'list' | 'permissions'
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await userService.getUsers({
-        page: 1,
-        per_page: 25,
-        search,
-        role: roleFilter,
-      });
+  const queryParams = { page: 1, per_page: 25, search, role: roleFilter };
+
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.users.list(queryParams),
+    queryFn: () => userService.getUsers(queryParams),
+    enabled: canAccess,
+    staleTime: 2 * 60 * 1000,
+    select: (res) => {
       const list = res.data || res || [];
-      setUsers(Array.isArray(list) ? list : []);
-    } catch (err) {
-      console.error("Failed to load users", err);
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, roleFilter]);
+      return Array.isArray(list) ? list : [];
+    },
+  });
 
-  useEffect(() => {
-    if (canAccess) {
-      fetchUsers();
-    }
-  }, [canAccess, fetchUsers]);
+  const users = data || [];
+  const loading = isLoading;
+
+  const fetchUsers = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
 
   if (!canAccess) {
     return (

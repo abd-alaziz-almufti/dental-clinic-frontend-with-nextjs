@@ -1,63 +1,60 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
+import { KpiCardsSkeleton, TableSkeleton } from "@/components/ui/Skeleton";
 import { InvoiceStatusBadge } from "@/features/billing/components/InvoiceStatusBadge";
 import { RecordPaymentModal } from "@/features/billing/components/RecordPaymentModal";
 import { billingService } from "@/features/billing/services/billingService";
+import { queryKeys } from "@/lib/queryKeys";
 import {
   Receipt,
   Filter,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
-  Wallet,
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
 
 export default function BillingPage() {
   const t = useTranslations("billing");
-  const commonT = useTranslations("common");
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(true);
-  const [invoices, setInvoices] = useState([]);
-  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [paymentModal, setPaymentModal] = useState({ open: false, invoiceId: null, remaining: 0 });
 
-  // KPI aggregates (derived from list data)
+  const queryParams = { page, per_page: 12, status: statusFilter };
+
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.invoices.list(queryParams),
+    queryFn: () => billingService.getInvoices(queryParams),
+    staleTime: 60 * 1000, // 1 minute — invoices change after payments
+    placeholderData: (prev) => prev,
+  });
+
+  const invoices = data?.data || [];
+  const meta = data?.meta || { current_page: page, last_page: 1, total: invoices.length };
+
+  // KPI aggregates derived from current page data
   const totalBilled = invoices.reduce((s, inv) => s + parseFloat(inv.total || 0), 0);
   const totalPaid = invoices.reduce((s, inv) => {
-    const paid = inv.paid_amount !== undefined
-      ? parseFloat(inv.paid_amount || 0)
-      : parseFloat(inv.total || 0) - parseFloat(inv.remaining_balance || 0);
+    const paid =
+      inv.paid_amount !== undefined
+        ? parseFloat(inv.paid_amount || 0)
+        : parseFloat(inv.total || 0) - parseFloat(inv.remaining_balance || 0);
     return s + (isNaN(paid) ? 0 : paid);
   }, 0);
-  const outstanding = invoices.reduce((s, inv) => s + parseFloat(inv.remaining_balance || inv.balance || 0), 0);
-
-  const fetchInvoices = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await billingService.getInvoices({ page, per_page: 12, status: statusFilter });
-      setInvoices(res.data || []);
-      setMeta(res.meta || { current_page: page, last_page: 1, total: (res.data || []).length });
-    } catch (err) {
-      console.error("Failed to load invoices:", err);
-      setInvoices([]);
-      setMeta({ current_page: 1, last_page: 1, total: 0 });
-    } finally {
-      setLoading(false);
-    }
-  }, [page, statusFilter]);
-
-  useEffect(() => { fetchInvoices(); }, [fetchInvoices]);
+  const outstanding = invoices.reduce(
+    (s, inv) => s + parseFloat(inv.remaining_balance || inv.balance || 0),
+    0
+  );
 
   const kpiCards = [
     { label: "Total Billed", value: `$${totalBilled.toFixed(2)}`, icon: Receipt, color: "text-teal-600", bg: "bg-teal-50" },
@@ -65,6 +62,9 @@ export default function BillingPage() {
     { label: "Outstanding", value: `$${outstanding.toFixed(2)}`, icon: AlertCircle, color: "text-amber-600", bg: "bg-amber-50" },
     { label: "Total Invoices", value: meta.total || invoices.length, icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50" },
   ];
+
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all });
 
   return (
     <DashboardLayout>
@@ -76,21 +76,25 @@ export default function BillingPage() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiCards.map((kpi) => (
-            <Card key={kpi.label} className="p-4 shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl ${kpi.bg} flex items-center justify-center shrink-0`}>
-                  <kpi.icon className={`w-4.5 h-4.5 ${kpi.color}`} />
+        {isLoading ? (
+          <KpiCardsSkeleton count={4} />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpiCards.map((kpi) => (
+              <Card key={kpi.label} className="p-4 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl ${kpi.bg} flex items-center justify-center shrink-0`}>
+                    <kpi.icon className={`w-4.5 h-4.5 ${kpi.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500">{kpi.label}</p>
+                    <p className="text-lg font-bold text-slate-900 leading-tight">{kpi.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-500">{kpi.label}</p>
-                  <p className="text-lg font-bold text-slate-900 leading-tight">{kpi.value}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="p-4 shadow-xs flex items-center gap-3">
@@ -111,8 +115,8 @@ export default function BillingPage() {
 
         {/* Invoices Table */}
         <Card className="shadow-xs overflow-hidden">
-          {loading ? (
-            <div className="py-16 flex justify-center"><Spinner size="lg" /></div>
+          {isLoading ? (
+            <TableSkeleton rows={6} cols={7} />
           ) : invoices.length === 0 ? (
             <div className="py-14 text-center text-slate-400">
               <Receipt className="w-10 h-10 mx-auto mb-3 stroke-1" />
@@ -136,7 +140,8 @@ export default function BillingPage() {
                 <tbody className="divide-y divide-slate-100">
                   {invoices.map((inv) => {
                     const patientName = inv.patient
-                      ? (inv.patient.full_name || `${inv.patient.first_name || ""} ${inv.patient.last_name || ""}`.trim())
+                      ? inv.patient.full_name ||
+                        `${inv.patient.first_name || ""} ${inv.patient.last_name || ""}`.trim()
                       : inv.patient_name || "—";
                     const remaining = parseFloat(inv.remaining_balance || inv.balance || 0);
                     const isSettled = remaining <= 0 || inv.status === "paid" || inv.status === "cancelled";
@@ -213,7 +218,7 @@ export default function BillingPage() {
         onClose={() => setPaymentModal({ open: false, invoiceId: null, remaining: 0 })}
         invoiceId={paymentModal.invoiceId}
         remainingBalance={paymentModal.remaining}
-        onSuccess={fetchInvoices}
+        onSuccess={refetch}
       />
     </DashboardLayout>
   );

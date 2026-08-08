@@ -1,8 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, usePathname } from "@/i18n/routing";
 import { useAuth } from "@/hooks/useAuth";
+import { queryKeys } from "@/lib/queryKeys";
+import { patientService } from "@/features/patients/services/patientService";
+import { appointmentService } from "@/features/appointments/services/appointmentService";
+import { visitService } from "@/features/visits/services/visitService";
+import { billingService } from "@/features/billing/services/billingService";
+import { userService } from "@/features/users/services/userService";
 import {
   LayoutDashboard,
   Users,
@@ -22,6 +29,46 @@ export function Sidebar({ isOpen, onClose }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const { user, hasAnyRole } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handlePrefetch = (href) => {
+    try {
+      if (href === "/patients") {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.patients.list({ page: 1, per_page: 10, search: "" }),
+          queryFn: () => patientService.getPatients({ page: 1, per_page: 10, search: "" }),
+          staleTime: 2 * 60 * 1000,
+        });
+      } else if (href === "/appointments") {
+        const todayStr = new Date().toISOString().split("T")[0];
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.appointments.list({ date: todayStr, doctor_id: "" }),
+          queryFn: () => appointmentService.getAppointments({ date: todayStr, doctor_id: "" }),
+          staleTime: 60 * 1000,
+        });
+      } else if (href === "/visits") {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.visits.list({ page: 1, per_page: 10, status: "" }),
+          queryFn: () => visitService.getVisits({ page: 1, per_page: 10, status: "" }),
+          staleTime: 2 * 60 * 1000,
+        });
+      } else if (href === "/billing") {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.invoices.list({ page: 1, per_page: 12, status: "" }),
+          queryFn: () => billingService.getInvoices({ page: 1, per_page: 12, status: "" }),
+          staleTime: 60 * 1000,
+        });
+      } else if (href === "/users") {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.users.list({ page: 1, per_page: 25, search: "", role: "" }),
+          queryFn: () => userService.getUsers({ page: 1, per_page: 25, search: "", role: "" }),
+          staleTime: 2 * 60 * 1000,
+        });
+      }
+    } catch (e) {
+      // Ignore prefetch errors silently
+    }
+  };
 
   const navItems = [
     {
@@ -145,6 +192,8 @@ export function Sidebar({ isOpen, onClose }) {
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
+                onMouseEnter={() => handlePrefetch(item.href)}
+                onFocus={() => handlePrefetch(item.href)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${
                   isActive
                     ? "bg-teal-50 text-teal-700 font-semibold"

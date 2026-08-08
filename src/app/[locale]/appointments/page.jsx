@@ -1,47 +1,39 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import { AppointmentCalendar } from "@/features/appointments/components/AppointmentCalendar";
 import { CreateAppointmentModal } from "@/features/appointments/components/CreateAppointmentModal";
 import { CancelAppointmentModal } from "@/features/appointments/components/CancelAppointmentModal";
 import { appointmentService } from "@/features/appointments/services/appointmentService";
+import { queryKeys } from "@/lib/queryKeys";
 import { CalendarPlus, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 export default function AppointmentsPage() {
   const t = useTranslations("appointments");
+  const queryClient = useQueryClient();
 
   const todayStr = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [doctorId, setDoctorId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [appointments, setAppointments] = useState([]);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState(null);
 
-  const fetchAppointments = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await appointmentService.getAppointments({
-        date: selectedDate,
-        doctor_id: doctorId,
-      });
-      setAppointments(res.data || []);
-    } catch (err) {
-      console.error("Failed to load appointments", err);
-      setAppointments([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedDate, doctorId]);
+  const queryParams = { date: selectedDate, doctor_id: doctorId };
 
-  useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.appointments.list(queryParams),
+    queryFn: () => appointmentService.getAppointments(queryParams),
+    select: (res) => res.data || [],
+    staleTime: 60 * 1000, // 1 minute
+  });
+
+  const appointments = data || [];
 
   const handlePrevDay = () => {
     const d = new Date(selectedDate);
@@ -54,6 +46,10 @@ export default function AppointmentsPage() {
     d.setDate(d.getDate() + 1);
     setSelectedDate(d.toISOString().split("T")[0]);
   };
+
+  // Invalidate & refetch after mutations
+  const refetch = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all });
 
   return (
     <DashboardLayout>
@@ -116,10 +112,8 @@ export default function AppointmentsPage() {
         </Card>
 
         {/* Appointments List / Grid */}
-        {loading ? (
-          <div className="py-16 flex justify-center">
-            <Spinner size="lg" />
-          </div>
+        {isLoading ? (
+          <TableSkeleton rows={5} cols={4} />
         ) : (
           <AppointmentCalendar
             appointments={appointments}
@@ -133,7 +127,7 @@ export default function AppointmentsPage() {
         isOpen={isBookModalOpen}
         onClose={() => setIsBookModalOpen(false)}
         initialDate={selectedDate}
-        onSuccess={fetchAppointments}
+        onSuccess={refetch}
       />
 
       {/* Cancellation Modal */}
@@ -141,7 +135,7 @@ export default function AppointmentsPage() {
         isOpen={!!cancelTarget}
         appointment={cancelTarget}
         onClose={() => setCancelTarget(null)}
-        onSuccess={fetchAppointments}
+        onSuccess={refetch}
       />
     </DashboardLayout>
   );

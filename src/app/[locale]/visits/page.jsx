@@ -1,52 +1,41 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import { visitService } from "@/features/visits/services/visitService";
+import { queryKeys } from "@/lib/queryKeys";
 import { Stethoscope, ChevronLeft, ChevronRight, Filter, Calendar } from "lucide-react";
+
+const statusVariantMap = {
+  in_progress: "info",
+  completed: "success",
+  closed: "neutral",
+};
 
 export default function VisitsPage() {
   const t = useTranslations("visits");
 
-  const [loading, setLoading] = useState(true);
-  const [visits, setVisits] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
 
-  const fetchVisits = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await visitService.getVisits({
-        page,
-        per_page: 10,
-        status: statusFilter,
-      });
-      setVisits(res.data || []);
-      setMeta(res.meta || { current_page: page, last_page: 1, total: (res.data || []).length });
-    } catch (err) {
-      console.error("Failed to load visits", err);
-      setVisits([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, statusFilter]);
+  const queryParams = { page, per_page: 10, status: statusFilter };
 
-  useEffect(() => {
-    fetchVisits();
-  }, [fetchVisits]);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.visits.list(queryParams),
+    queryFn: () => visitService.getVisits(queryParams),
+    staleTime: 2 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  });
 
-  const statusVariantMap = {
-    in_progress: "info",
-    completed: "success",
-    closed: "neutral",
-  };
+  const visits = data?.data || [];
+  const meta = data?.meta || { current_page: page, last_page: 1, total: visits.length };
 
   return (
     <DashboardLayout>
@@ -89,10 +78,8 @@ export default function VisitsPage() {
 
         {/* Visits Table */}
         <Card className="shadow-xs overflow-hidden">
-          {loading ? (
-            <div className="py-16 flex justify-center">
-              <Spinner size="lg" />
-            </div>
+          {isLoading ? (
+            <TableSkeleton rows={5} cols={5} />
           ) : visits.length === 0 ? (
             <div className="py-16 text-center text-slate-400">
               <Stethoscope className="w-10 h-10 mx-auto mb-3 stroke-1" />
