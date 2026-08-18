@@ -17,7 +17,13 @@ export const inventoryService = {
   },
 
   async createItem(data) {
-    const res = await api.post("/inventory/items", data);
+    const payload = {};
+    for (const [key, val] of Object.entries(data)) {
+      if (val !== "" && val !== null && val !== undefined) {
+        payload[key] = val;
+      }
+    }
+    const res = await api.post("/inventory/items", payload);
     return res.data;
   },
 
@@ -29,7 +35,13 @@ export const inventoryService = {
   },
 
   async createPurchase(data) {
-    const res = await api.post("/purchases", data);
+    const payload = {};
+    for (const [key, val] of Object.entries(data)) {
+      if (val !== "" && val !== null && val !== undefined) {
+        payload[key] = val;
+      }
+    }
+    const res = await api.post("/purchases", payload);
     return res.data;
   },
 

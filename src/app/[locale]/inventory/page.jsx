@@ -35,16 +35,18 @@ function StockBadge({ qty, reorder }) {
 function PurchaseStatusBadge({ status }) {
   const t = useTranslations("inventory");
   const map = {
+    draft: { variant: "info", icon: Clock },
     pending: { variant: "info", icon: Clock },
     received: { variant: "success", icon: CheckCircle2 },
     cancelled: { variant: "neutral", icon: XCircle },
   };
   const s = map[status] || map.pending;
   const Icon = s.icon;
+  const label = status === "draft" ? (t("draft") || "Draft") : (t(status) || status);
   return (
     <Badge variant={s.variant} className="flex items-center gap-1">
       <Icon className="w-3 h-3" />
-      {t(status)}
+      {label}
     </Badge>
   );
 }
@@ -441,7 +443,7 @@ export default function InventoryPage() {
     return s && parseFloat(s.quantity_on_hand) <= parseFloat(s.reorder_level) && parseFloat(s.quantity_on_hand) > 0;
   }).length;
   const outOfStockCount = items.filter((i) => parseFloat(i.stocks?.[0]?.quantity_on_hand ?? 0) <= 0).length;
-  const pendingPurchases = purchases.filter((p) => p.status === "pending").length;
+  const pendingPurchases = purchases.filter((p) => p.status === "pending" || p.status === "draft").length;
 
   return (
     <DashboardLayout>
@@ -619,7 +621,7 @@ export default function InventoryPage() {
                 className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">All Statuses</option>
-                <option value="pending">{t("pending")}</option>
+                <option value="draft">Draft / Pending</option>
                 <option value="received">{t("received")}</option>
                 <option value="cancelled">{t("cancelled")}</option>
               </select>
@@ -675,7 +677,7 @@ export default function InventoryPage() {
                         </td>
                         <td className="px-5 py-3.5 text-end">
                           <div className="flex items-center justify-end gap-2">
-                            {po.status === "pending" && (
+                            {(po.status === "pending" || po.status === "draft") && (
                               <>
                                 <Button
                                   size="sm"
