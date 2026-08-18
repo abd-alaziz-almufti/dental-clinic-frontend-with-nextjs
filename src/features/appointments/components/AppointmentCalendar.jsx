@@ -1,19 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Link } from "@/i18n/routing";
-import { Clock, User, CalendarX, Stethoscope } from "lucide-react";
+import { Clock, User, CalendarX, Stethoscope, ClipboardPlus } from "lucide-react";
 
-export function AppointmentCalendar({ appointments = [], onCancelClick }) {
+export function AppointmentCalendar({ appointments = [], onCancelClick, onCheckInClick }) {
   const t = useTranslations("appointments");
+  const [checkingIn, setCheckingIn] = useState({});
 
   const statusVariant = {
     scheduled: "info",
     confirmed: "teal",
     completed: "success",
     cancelled: "danger",
+    attended: "success",
+  };
+
+  const handleCheckIn = async (apt) => {
+    setCheckingIn((prev) => ({ ...prev, [apt.id]: true }));
+    try {
+      await onCheckInClick?.(apt);
+    } finally {
+      setCheckingIn((prev) => ({ ...prev, [apt.id]: false }));
+    }
   };
 
   if (appointments.length === 0) {
@@ -73,14 +85,33 @@ export function AppointmentCalendar({ appointments = [], onCancelClick }) {
             </div>
 
             <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-100">
-              <Link href={`/visits?appointment_id=${apt.id}&patient_id=${apt.patient_id}`}>
-                <Button size="sm" variant="outline" className="text-teal-700 hover:bg-teal-50">
-                  <Stethoscope className="w-3.5 h-3.5 me-1" />
-                  <span>Visit</span>
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                {/* Check-In button: only for scheduled / confirmed */}
+                {(status === "scheduled" || status === "confirmed") && (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    isLoading={checkingIn[apt.id]}
+                    onClick={() => handleCheckIn(apt)}
+                    className="text-xs"
+                  >
+                    <ClipboardPlus className="w-3.5 h-3.5 me-1" />
+                    <span>{t("checkIn")}</span>
+                  </Button>
+                )}
 
-              {status !== "cancelled" && status !== "completed" && (
+                {/* View Visit link: only when already attended/completed */}
+                {(status === "attended" || status === "completed") && (
+                  <Link href={`/visits?appointment_id=${apt.id}&patient_id=${apt.patient_id}`}>
+                    <Button size="sm" variant="outline" className="text-teal-700 hover:bg-teal-50 text-xs">
+                      <Stethoscope className="w-3.5 h-3.5 me-1" />
+                      <span>{t("viewVisit")}</span>
+                    </Button>
+                  </Link>
+                )}
+              </div>
+
+              {status !== "cancelled" && status !== "completed" && status !== "attended" && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -88,7 +119,7 @@ export function AppointmentCalendar({ appointments = [], onCancelClick }) {
                   onClick={() => onCancelClick?.(apt)}
                 >
                   <CalendarX className="w-3.5 h-3.5 me-1" />
-                  <span>Cancel</span>
+                  <span>{t("cancel")}</span>
                 </Button>
               )}
             </div>

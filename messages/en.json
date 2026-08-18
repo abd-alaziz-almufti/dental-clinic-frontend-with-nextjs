@@ -98,8 +98,10 @@
     "remainingBalance": "Remaining Balance",
     "status": "Financial Status",
     "actions": "Actions",
+    "allStatuses": "All Statuses",
     "paid": "Paid",
     "partial": "Partially Paid",
+    "partially_paid": "Partially Paid",
     "unpaid": "Unpaid",
     "issued": "Issued",
     "draft": "Draft",
@@ -184,6 +186,10 @@
     "completed": "Completed",
     "cancelled": "Cancelled",
     "doctor": "Doctor",
+    "checkIn": "Check In",
+    "cancel": "Cancel",
+    "attended": "Attended",
+    "viewVisit": "Visit",
     "noAppointments": "No appointments found for this period."
   },
   "patients": {

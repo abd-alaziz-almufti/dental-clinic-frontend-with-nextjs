@@ -104,11 +104,10 @@ export default function BillingPage() {
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
-            <option value="">All Statuses</option>
+            <option value="">{t("allStatuses")}</option>
+            <option value="issued">{t("issued")}</option>
+            <option value="partially_paid">{t("partially_paid")}</option>
             <option value="paid">{t("paid")}</option>
-            <option value="partial">{t("partial")}</option>
-            <option value="unpaid">{t("unpaid")}</option>
-            <option value="overdue">{t("overdue")}</option>
             <option value="cancelled">{t("cancelled")}</option>
           </select>
         </Card>

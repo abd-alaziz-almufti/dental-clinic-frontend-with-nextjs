@@ -98,8 +98,10 @@
     "remainingBalance": "المبلغ المتبقي",
     "status": "الحالة المالية",
     "actions": "الإجراءات",
+    "allStatuses": "جميع الحالات",
     "paid": "مدفوعة",
     "partial": "مدفوعة جزئياً",
+    "partially_paid": "مدفوعة جزئياً",
     "unpaid": "غير مدفوعة",
     "issued": "صادرة",
     "draft": "مسودة",
@@ -184,6 +186,10 @@
     "completed": "مكتمل",
     "cancelled": "ملغي",
     "doctor": "الطبيب",
+    "checkIn": "تسجيل زيارة",
+    "cancel": "إلغاء",
+    "attended": "تم الحضور",
+    "viewVisit": "الزيارة",
     "noAppointments": "لا توجد مواعيد مسجلة لهذه الفترة."
   },
   "patients": {

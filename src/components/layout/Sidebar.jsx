@@ -153,9 +153,8 @@ export function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar container */}
       <aside
-        className={`fixed top-0 bottom-0 start-0 z-50 w-64 bg-white border-e border-slate-200 shadow-sm flex flex-col transition-transform duration-300 lg:translate-x-0 lg:rtl:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
-        }`}
+        className={`fixed top-0 bottom-0 start-0 z-50 w-64 bg-white border-e border-slate-200 shadow-sm flex flex-col transition-transform duration-300 lg:translate-x-0 lg:rtl:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
+          }`}
       >
         {/* Brand Header */}
         <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
@@ -194,16 +193,14 @@ export function Sidebar({ isOpen, onClose }) {
                 onClick={onClose}
                 onMouseEnter={() => handlePrefetch(item.href)}
                 onFocus={() => handlePrefetch(item.href)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${isActive
                     ? "bg-teal-50 text-teal-700 font-semibold"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 <Icon
-                  className={`w-5 h-5 ${
-                    isActive ? "text-teal-600" : "text-slate-400"
-                  }`}
+                  className={`w-5 h-5 ${isActive ? "text-teal-600" : "text-slate-400"
+                    }`}
                 />
                 <span>{item.label}</span>
               </Link>

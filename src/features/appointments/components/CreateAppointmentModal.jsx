@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { appointmentSchema } from "../schemas/appointmentSchema";
 import { appointmentService } from "../services/appointmentService";
 import { patientService } from "@/features/patients/services/patientService";
+import { userService } from "@/features/users/services/userService";
 
 export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate = "" }) {
   const t = useTranslations("appointments");
@@ -18,13 +19,21 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
   const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
+      // Fetch patients
       patientService
-        .getPatients({ per_page: 50 })
+        .getPatients({ per_page: 100 })
         .then((res) => setPatients(res.data || []))
         .catch(() => setPatients([]));
+
+      // Fetch doctors dynamically from users with role 'doctor'
+      userService
+        .getUsers({ role: "doctor", per_page: 100 })
+        .then((res) => setDoctors(res.data || []))
+        .catch(() => setDoctors([]));
     }
   }, [isOpen]);
 
@@ -39,7 +48,7 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       patient_id: "",
-      doctor_profile_id: "1",
+      doctor_profile_id: "",
       appointment_date: initialDate || todayStr,
       start_time: "09:00:00",
       end_time: "09:30:00",
@@ -59,11 +68,20 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
       onClose();
     } catch (err) {
       console.error("Book appointment error", err);
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.errors?.appointment_date?.[0] ||
-        commonT("serverError") ||
-        "Failed to book appointment";
+      const apiErrors = err.response?.data?.errors;
+      let msg = "";
+      if (apiErrors && typeof apiErrors === "object") {
+        const errorList = Object.values(apiErrors).flat();
+        if (errorList.length > 0) {
+          msg = errorList.join(" ");
+        }
+      }
+      if (!msg) {
+        msg =
+          err.response?.data?.message ||
+          commonT("serverError") ||
+          "Failed to book appointment";
+      }
       setServerError(msg);
     } finally {
       setSubmitting(false);
@@ -89,11 +107,15 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="">-- {t("selectPatient")} --</option>
-            {patients.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.first_name} {p.last_name} ({p.phone || "No phone"})
-              </option>
-            ))}
+            {patients.map((p) => {
+              const fullName = `${p.first_name} ${p.middle_name ? p.middle_name + " " : ""}${p.last_name}`;
+              const extraInfo = p.patient_number || p.phone || p.national_id || "No phone";
+              return (
+                <option key={p.id} value={p.id}>
+                  {fullName} ({extraInfo})
+                </option>
+              );
+            })}
           </select>
           {errors.patient_id && (
             <p className="mt-1 text-xs text-red-600 font-medium">
@@ -111,9 +133,23 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
             {...register("doctor_profile_id")}
             className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
-            <option value="1">Dr. Sarah Al-Mansoor (General Dentistry)</option>
-            <option value="2">Dr. Omar Hassan (Orthodontist)</option>
+            <option value="">-- {t("selectDoctor")} --</option>
+            {doctors.map((u) => {
+              const doctorProfileId = u.doctor_profile?.id;
+              if (!doctorProfileId) return null;
+              const specialtyName = u.doctor_profile?.specialty?.name;
+              return (
+                <option key={doctorProfileId} value={doctorProfileId}>
+                  Dr. {u.name} {specialtyName ? `(${specialtyName})` : ""}
+                </option>
+              );
+            })}
           </select>
+          {errors.doctor_profile_id && (
+            <p className="mt-1 text-xs text-red-600 font-medium">
+              {errors.doctor_profile_id.message}
+            </p>
+          )}
         </div>
 
         {/* Date & Time Grid */}

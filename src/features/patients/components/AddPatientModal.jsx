@@ -47,11 +47,20 @@ export function AddPatientModal({ isOpen, onClose, onSuccess }) {
       onClose();
     } catch (err) {
       console.error("Register patient error", err);
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.errors?.national_id?.[0] ||
-        commonT("serverError") ||
-        "Failed to register patient";
+      const apiErrors = err.response?.data?.errors;
+      let msg = "";
+      if (apiErrors && typeof apiErrors === "object") {
+        const errorList = Object.values(apiErrors).flat();
+        if (errorList.length > 0) {
+          msg = errorList.join(" ");
+        }
+      }
+      if (!msg) {
+        msg =
+          err.response?.data?.message ||
+          commonT("serverError") ||
+          "Failed to register patient";
+      }
       setServerError(msg);
     } finally {
       setSubmitting(false);

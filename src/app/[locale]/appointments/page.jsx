@@ -23,6 +23,7 @@ export default function AppointmentsPage() {
   const [doctorId, setDoctorId] = useState("");
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [cancelTarget, setCancelTarget] = useState(null);
+  const [checkInError, setCheckInError] = useState("");
 
   const queryParams = { date: selectedDate, doctor_id: doctorId };
 
@@ -50,6 +51,22 @@ export default function AppointmentsPage() {
   // Invalidate & refetch after mutations
   const refetch = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.appointments.all });
+
+  // Check-in handler: converts appointment → visit, then refetch
+  const handleCheckIn = async (apt) => {
+    setCheckInError("");
+    try {
+      await appointmentService.checkIn(apt.id);
+      refetch();
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Failed to check in. The appointment may have already been attended.";
+      setCheckInError(msg);
+      // Auto-clear error after 5s
+      setTimeout(() => setCheckInError(""), 5000);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -111,6 +128,13 @@ export default function AppointmentsPage() {
           </div>
         </Card>
 
+        {/* Check-In global error banner */}
+        {checkInError && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl font-medium">
+            {checkInError}
+          </div>
+        )}
+
         {/* Appointments List / Grid */}
         {isLoading ? (
           <TableSkeleton rows={5} cols={4} />
@@ -118,6 +142,7 @@ export default function AppointmentsPage() {
           <AppointmentCalendar
             appointments={appointments}
             onCancelClick={(apt) => setCancelTarget(apt)}
+            onCheckInClick={handleCheckIn}
           />
         )}
       </div>
