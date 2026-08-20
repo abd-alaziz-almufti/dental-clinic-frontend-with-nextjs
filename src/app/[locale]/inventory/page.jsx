@@ -198,7 +198,19 @@ function NewPurchaseModal({ allItems, onClose, onSuccess }) {
       });
       onSuccess();
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to create purchase order.");
+      console.error("Create purchase error", err);
+      const apiErrors = err.response?.data?.errors;
+      let msg = "";
+      if (apiErrors && typeof apiErrors === "object") {
+        const errorList = Object.values(apiErrors).flat();
+        if (errorList.length > 0) {
+          msg = errorList.join(" ");
+        }
+      }
+      if (!msg) {
+        msg = err?.response?.data?.message || "Failed to create purchase order.";
+      }
+      setError(msg);
     } finally {
       setSaving(false);
     }
