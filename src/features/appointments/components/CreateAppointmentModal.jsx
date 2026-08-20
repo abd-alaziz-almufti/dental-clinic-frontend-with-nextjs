@@ -43,6 +43,8 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(appointmentSchema),
@@ -58,11 +60,40 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
     },
   });
 
+  const selectedPatientId = watch("patient_id");
+  const selectedDoctorProfileId = watch("doctor_profile_id");
+
+  const selectedPatient = patients.find((p) => String(p.id) === String(selectedPatientId));
+  const selectedDoctorUser = doctors.find(
+    (u) => String(u.doctor_profile?.id) === String(selectedDoctorProfileId)
+  );
+
+  const patientBranchId = selectedPatient?.registered_branch_id || selectedPatient?.branch_id;
+  const doctorBranchId = selectedDoctorUser?.branch_id || selectedDoctorUser?.doctor_profile?.branch_id;
+
+  const hasBranchMismatch =
+    selectedPatient &&
+    selectedDoctorUser &&
+    patientBranchId &&
+    doctorBranchId &&
+    Number(patientBranchId) !== Number(doctorBranchId);
+
   const onSubmit = async (data) => {
+    if (hasBranchMismatch) {
+      setServerError(
+        "خطأ في الفرع: المريض المحدد ينتمي لفرع مختلف عن الدكتور المختار. يرجى اختيار دكتور ينتمي لنفس فرع المريض."
+      );
+      return;
+    }
+
     setSubmitting(true);
     setServerError("");
     try {
-      await appointmentService.bookAppointment(data);
+      const payload = {
+        ...data,
+        branch_id: patientBranchId || doctorBranchId || data.branch_id,
+      };
+      await appointmentService.bookAppointment(payload);
       reset();
       onSuccess?.();
       onClose();
@@ -94,6 +125,14 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
         {serverError && (
           <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg font-medium">
             {serverError}
+          </div>
+        )}
+
+        {hasBranchMismatch && !serverError && (
+          <div className="p-3 bg-amber-50 border border-amber-300 text-amber-900 text-xs rounded-lg font-semibold flex items-center justify-between">
+            <span>
+              ⚠️ تنبيه: المريض من (فرع #{patientBranchId}) والدكتور من (فرع #{doctorBranchId}). يجب اختيار دكتور بنفس الفرع.
+            </span>
           </div>
         )}
 
@@ -138,9 +177,13 @@ export function CreateAppointmentModal({ isOpen, onClose, onSuccess, initialDate
               const doctorProfileId = u.doctor_profile?.id;
               if (!doctorProfileId) return null;
               const specialtyName = u.doctor_profile?.specialty?.name;
+              const docBranch = u.branch_id || u.doctor_profile?.branch_id;
+              const isMatch = !patientBranchId || Number(docBranch) === Number(patientBranchId);
               return (
                 <option key={doctorProfileId} value={doctorProfileId}>
-                  Dr. {u.name} {specialtyName ? `(${specialtyName})` : ""}
+                  Dr. {u.name} {specialtyName ? `(${specialtyName})` : ""}{" "}
+                  {docBranch ? `[Branch #${docBranch}]` : ""}{" "}
+                  {!isMatch ? "⚠️ Different Branch" : ""}
                 </option>
               );
             })}
