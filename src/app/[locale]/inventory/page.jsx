@@ -410,7 +410,7 @@ export default function InventoryPage() {
   // Fetch all items (no pagination) for the purchase modal select
   const [allItems, setAllItems] = useState([]);
   useEffect(() => {
-    inventoryService.getItems({ per_page: 100 }).then((r) => setAllItems(r.data || [])).catch(() => {});
+    inventoryService.getItems({ per_page: 100 }).then((r) => setAllItems(r.data || [])).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -504,11 +504,10 @@ export default function InventoryPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${
-                activeTab === tab
-                  ? "bg-white text-teal-700 shadow-xs"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
+              className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === tab
+                ? "bg-white text-teal-700 shadow-xs"
+                : "text-slate-500 hover:text-slate-700"
+                }`}
             >
               {tab === "items" ? t("items") : t("purchases")}
             </button>

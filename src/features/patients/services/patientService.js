@@ -25,7 +25,9 @@ export const patientService = {
 
   async getPatientById(id) {
     const response = await api.get(`/patients/${id}`, {
-      params: { include: "medicalProfile" },
+      params: {
+        include: "medicalProfile,visits.doctorProfile.user,visits.visitServices.service,invoices.payments",
+      },
     });
     return response.data;
   },
