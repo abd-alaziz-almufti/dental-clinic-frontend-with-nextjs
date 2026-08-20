@@ -136,6 +136,8 @@
     "patient": "المريض",
     "doctor": "الطبيب",
     "status": "الحالة",
+    "open": "مفتوحة",
+    "in_progress": "قيد الفحص",
     "inProgress": "قيد الفحص",
     "completed": "مكتمل",
     "closed": "مغلق",

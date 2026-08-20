@@ -15,6 +15,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Stethoscope, ChevronLeft, ChevronRight, Filter, Calendar, User } from "lucide-react";
 
 const statusVariantMap = {
+  open: "info",
   in_progress: "info",
   completed: "success",
   closed: "neutral",
@@ -80,6 +81,7 @@ export default function VisitsPage() {
                 className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">All Statuses</option>
+                <option value="open">{t("open")}</option>
                 <option value="in_progress">{t("inProgress")}</option>
                 <option value="completed">{t("completed")}</option>
                 <option value="closed">{t("closed")}</option>

@@ -136,6 +136,8 @@
     "patient": "Patient",
     "doctor": "Doctor",
     "status": "Status",
+    "open": "Open",
+    "in_progress": "In Progress",
     "inProgress": "In Progress",
     "completed": "Completed",
     "closed": "Closed",
