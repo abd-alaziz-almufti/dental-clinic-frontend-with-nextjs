@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { visitService } from "@/features/visits/services/visitService";
+import { userService } from "@/features/users/services/userService";
 import { queryKeys } from "@/lib/queryKeys";
-import { Stethoscope, ChevronLeft, ChevronRight, Filter, Calendar } from "lucide-react";
+import { Stethoscope, ChevronLeft, ChevronRight, Filter, Calendar, User } from "lucide-react";
 
 const statusVariantMap = {
   in_progress: "info",
@@ -23,9 +24,18 @@ export default function VisitsPage() {
   const t = useTranslations("visits");
 
   const [statusFilter, setStatusFilter] = useState("");
+  const [doctorFilter, setDoctorFilter] = useState("");
+  const [doctors, setDoctors] = useState([]);
   const [page, setPage] = useState(1);
 
-  const queryParams = { page, per_page: 10, status: statusFilter };
+  useEffect(() => {
+    userService
+      .getUsers({ role: "doctor", per_page: 100 })
+      .then((res) => setDoctors(res.data || []))
+      .catch(() => setDoctors([]));
+  }, []);
+
+  const queryParams = { page, per_page: 10, status: statusFilter, doctor_id: doctorFilter };
 
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.visits.list(queryParams),
@@ -56,23 +66,49 @@ export default function VisitsPage() {
           </div>
         </div>
 
-        {/* Status Filter Bar */}
-        <Card className="p-4 shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="">All Statuses</option>
-              <option value="in_progress">{t("inProgress")}</option>
-              <option value="completed">{t("completed")}</option>
-              <option value="closed">{t("closed")}</option>
-            </select>
+        {/* Status & Doctor Filter Bar */}
+        <Card className="p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-slate-400 shrink-0" />
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">All Statuses</option>
+                <option value="in_progress">{t("inProgress")}</option>
+                <option value="completed">{t("completed")}</option>
+                <option value="closed">{t("closed")}</option>
+              </select>
+            </div>
+
+            {/* Doctor Filter */}
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-slate-400 shrink-0" />
+              <select
+                value={doctorFilter}
+                onChange={(e) => {
+                  setDoctorFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">All Doctors (Branch)</option>
+                {doctors.map((u) => {
+                  const profileId = u.doctor_profile?.id;
+                  if (!profileId) return null;
+                  return (
+                    <option key={profileId} value={profileId}>
+                      Dr. {u.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
           </div>
         </Card>
 
